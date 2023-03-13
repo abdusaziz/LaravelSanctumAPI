@@ -15,7 +15,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+         //$schedule->command('sanctum:prune-expire --hours=1')->daily();
+         $schedule->command('sanctum:prune-expire --hours=1')->everyFiveMinutes();
     }
 
     /**

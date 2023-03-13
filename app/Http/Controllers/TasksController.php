@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreTaskRequest;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\TasksResource;
+use App\Traits\MyHttpResponses;
 
 class TasksController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
+    use MyHttpResponses;
+
     public function index()
     {
         return TasksResource::collection(
@@ -21,69 +21,40 @@ class TasksController extends Controller
         );
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function store(StoreTaskRequest $request)
     {
-        //
+        $request->validated($request->all());
+
+        $task = Task::create([
+            "user_id"   =>  Auth::user()->id,
+            "name"      =>  $request->name,
+            "description"      =>  $request->description,
+            "priority"      =>  $request->priority
+        ]);
+
+        return new TasksResource($task);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function show(Task $task)
     {
-        //
+        return $this->isNotAuthorised($task) ? $this->isNotAuthorised($task) : new TasksResource($task);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
+    public function update(Request $request,Task $task){
+        if (Auth::user()->id !== $task->user_id) {
+            return $this->error("","You are not Authorized to make this request.",403);
+        }
+        $task->update($request->all());
+        return new TasksResource($task);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+    public function destroy(Task $task){
+        return $this->isNotAuthorised($task) ? $this->isNotAuthorised($task) : $task->delete();
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+    private function isNotAuthorised($task){
+        if (Auth::user()->id !== $task->user_id) {
+            return $this->error("","You are not Authorized to make this request.",403);
+        }
     }
 }

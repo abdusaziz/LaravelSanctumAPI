@@ -48,8 +48,10 @@ class AuthController extends Controller
 
     //***  Logout Method  ***//
     public function logout(){
-        return response()->json(
-            "User is logged out."
-        );
+        return Auth::user();
+        Auth::user()->currentAccessToken()->delete();
+        return $this->success([
+            "message"   =>  "You have successfully been logged out"
+        ]);
     }
 }
