@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Task;
+use App\Models\Sidemenu;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Http\Resources\TasksResource;
+use App\Http\Resources\SidemenuResource;
 
-class TasksController extends Controller
+class SidemenuController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,8 +15,10 @@ class TasksController extends Controller
      */
     public function index()
     {
-        return TasksResource::collection(
-            Task::where('user_id',Auth::user()->id)->get()
+        $sidemenus = Sidemenu::where('parent_id', null)->with('children')->get();
+
+        return SidemenuResource::collection(
+            $sidemenus
         );
     }
 
@@ -45,23 +46,21 @@ class TasksController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Models\Sidemenu  $sidemenu
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Sidemenu $sidemenu)
     {
-        return TasksResource::collection(
-            Task::all()
-        );
+        //
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Models\Sidemenu  $sidemenu
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Sidemenu $sidemenu)
     {
         //
     }
@@ -70,10 +69,10 @@ class TasksController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\Models\Sidemenu  $sidemenu
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Sidemenu $sidemenu)
     {
         //
     }
@@ -81,10 +80,10 @@ class TasksController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  \App\Models\Sidemenu  $sidemenu
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Sidemenu $sidemenu)
     {
         //
     }
